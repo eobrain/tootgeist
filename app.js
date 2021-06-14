@@ -19,11 +19,24 @@ fetch('https://api.joinmastodon.org/servers')
     progressElement.max = communities.length
     articleElement.insertAdjacentElement('beforeend', progressElement)
 
-    const later = []
-
+    const doms = []
     let count = 0
-    const promises = []
     for (const community of communities) {
+      const sizeWidth = 100.0 * community.last_week_users / biggestSize
+      const sectionElment = document.createElement('section')
+      articleElement.insertAdjacentElement('beforeend', sectionElment)
+      sectionElment.insertAdjacentHTML('beforeend',
+      `
+      <h2>${community.domain}</h2>
+      <div class="bar" style="width:${sizeWidth}vw"></div>
+      <p>${community.last_week_users} users last week</p>
+      `
+      )
+      doms.push({ community, sectionElment })
+    }
+    const promises = []
+    const later = []
+    for (const { community, sectionElment } of doms) {
       promises.push(fetch(`https://${community.domain}/api/v1/timelines/public?local=true&limit=100`)
         .then(apiResponse => apiResponse.json())
         .then(timeline => {
@@ -32,16 +45,6 @@ fetch('https://api.joinmastodon.org/servers')
             console.warn('No toots from', community.domain)
             return
           }
-          const sizeWidth = 100.0 * community.last_week_users / biggestSize
-          const sectionElment = document.createElement('section')
-          articleElement.insertAdjacentElement('beforeend', sectionElment)
-          sectionElment.insertAdjacentHTML('beforeend',
-          `
-          <h2>${community.domain}</h2>
-          <div class="bar" style="width:${sizeWidth}vw"></div>
-          <p>${community.last_week_users} users last week</p>
-          `
-          )
           const doc = new Doc(corpus)
           for (const toot of timeline) {
             sectionElment.insertAdjacentHTML('beforeend', `
