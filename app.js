@@ -97,9 +97,8 @@ const corpus = new Corpus()
       sectionElment.insertAdjacentHTML('beforeend',
           `
           <h2>${community.domain}</h2>
-          <p style="width:${sizeWidth}vw;height:2em;background:red">
-          ${community.last_week_users} users last week
-          </p>
+          <div class="bar" style="width:${sizeWidth}vw"></div>
+          <p>${community.last_week_users} users last week</p>
           `
       )
       // console.log(timeline)

@@ -5,3 +5,8 @@ article section > img {
 canvas {
     float:right;
 }
+
+.bar {
+    background:red;
+    height:2px;
+}
