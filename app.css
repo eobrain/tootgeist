@@ -2,8 +2,8 @@ article section > img {
     width:50px
 }
 
-canvas {
-    float:right;
+progress {
+    width:100%;
 }
 
 .bar {

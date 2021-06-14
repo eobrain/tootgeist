@@ -1,4 +1,4 @@
-/* global  WordCloud, DOMParser, fetch, articleElement */
+/* global  DOMParser, fetch, articleElement */
 
 const utlPattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
 
@@ -66,9 +66,11 @@ class Doc extends Terms {
 
   list () {
     const unscaled = Object.keys(this.terms).map(term => [term, this.tfIdf(term)]).filter(([_, value]) => value > 0)
+    if (unscaled.length === 0) {
+      return unscaled
+    }
     unscaled.sort((a, b) => b[1] - a[1])
-    const min = Math.min(...unscaled.slice(0, 200).map(([_, value]) => value))
-    return unscaled.map(([term, value]) => [term, Math.round(value / min)])
+    return unscaled.slice(0, 20).map(([term, value]) => [term, value / unscaled[0][1]])
   }
 }
 
@@ -82,7 +84,15 @@ const corpus = new Corpus()
 
   const biggestSize = communities[0].last_week_users
 
+  const progressElement = document.createElement('progress')
+  progressElement.max = communities.length
+  articleElement.insertAdjacentElement('beforeend', progressElement)
+
+  const later = []
+
+  let count = 0
   for (const community of communities) {
+    progressElement.value = ++count
     try {
       const apiResponse = await fetch(`https://${community.domain}/api/v1/timelines/public?local=true&limit=100`)
       const timeline = await apiResponse.json()
@@ -104,11 +114,11 @@ const corpus = new Corpus()
       // console.log(timeline)
       const doc = new Doc(corpus)
       // console.log(doc.list())
-      const canvasElement = document.createElement('canvas')
-      canvasElement.setAttribute('width', window.innerWidth / 2)
-      canvasElement.setAttribute('height', window.innerWidth / 4)
-      const canvasWidth = canvasElement.width
-      sectionElment.insertAdjacentElement('beforeend', canvasElement)
+      // const canvasElement = document.createElement('canvas')
+      // canvasElement.setAttribute('width', window.innerWidth / 2)
+      // canvasElement.setAttribute('height', window.innerWidth / 4)
+      // const canvasWidth = canvasElement.width
+      // sectionElment.insertAdjacentElement('beforeend', canvasElement)
       for (const toot of timeline) {
         sectionElment.insertAdjacentHTML('beforeend', `
               <img src="${toot.account.avatar}">
@@ -118,19 +128,17 @@ const corpus = new Corpus()
         // console.log(text)
         doc.addText(text)
       }
-      WordCloud(canvasElement, {
-        list: doc.list(),
-        shrinkToFit: true,
-        gridSize: Math.round(16 * canvasWidth / 1024),
-        weightFactor: size => Math.pow(size, 2.3) * canvasWidth / 1024,
-        fontFamily: 'Times, serif',
-        color: (word, weight) => '#c09292', // (weight === list[0][1]) ? '#f02222' : '#c09292',
-        rotateRatio: 0.5,
-        rotationSteps: 2,
-        backgroundColor: '#ffe0e0'
-      })
+      later.push({ doc, sectionElment })
     } catch (e) {
       console.warn('Ignoring', community.domain, e)
+    }
+  }
+  for (const { doc, sectionElment } of later) {
+    for (const [term, value] of doc.list()) {
+      sectionElment.insertAdjacentHTML('beforeend', `
+            <span style="font-size:${value * 100}px">${term}</span>
+          `
+      )
     }
   }
 })()
