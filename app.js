@@ -25,11 +25,12 @@ fetch('https://api.joinmastodon.org/servers')
       const sizeWidth = 100.0 * community.last_week_users / biggestSize
       const sectionElment = document.createElement('section')
       articleElement.insertAdjacentElement('beforeend', sectionElment)
+      const url = `https://${community.domain}/about`
       sectionElment.insertAdjacentHTML('beforeend',
       `
-      <h2>${community.domain}</h2>
+      <h2><a href="${url}">${community.domain}</a></h2>
       <figure>
-      <img src="${community.proxied_thumbnail}">
+      <a href="${url}"><img src="${community.proxied_thumbnail}"></a>
       </figure>
       <div class="bar" style="width:${sizeWidth}vw"></div>
       <p>${community.last_week_users} users last week</p>
@@ -65,7 +66,6 @@ fetch('https://api.joinmastodon.org/servers')
             <h3>Recent images</h3>
           `)
           for (const toot of timeline) {
-            console.log(toot)
             const images = toot.media_attachments.filter(a => a.type === 'image').map(a => a.preview_url)
             for (const image of images) {
               sectionElment.insertAdjacentHTML('beforeend', `

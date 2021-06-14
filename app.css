@@ -4,7 +4,7 @@ article section > a > img {
 }
 
 .media,
-article section > figure > img {
+article section > figure > a > img {
     height:200px;
     width:auto;   
 }
