@@ -66,7 +66,9 @@ class Doc extends Terms {
 
   list () {
     const unscaled = Object.keys(this.terms).map(term => [term, this.tfIdf(term)]).filter(([_, value]) => value > 0)
-    return unscaled.map(([term, value]) => [term, Math.round(value * 1000)])
+    unscaled.sort((a, b) => b[1] - a[1])
+    const min = Math.min(...unscaled.slice(0, 200).map(([_, value]) => value))
+    return unscaled.map(([term, value]) => [term, Math.round(value / min)])
   }
 }
 
@@ -102,6 +104,12 @@ const corpus = new Corpus()
       )
       // console.log(timeline)
       const doc = new Doc(corpus)
+      // console.log(doc.list())
+      const canvasElement = document.createElement('canvas')
+      canvasElement.setAttribute('width', window.innerWidth / 2)
+      canvasElement.setAttribute('height', window.innerWidth / 4)
+      const canvasWidth = canvasElement.width
+      sectionElment.insertAdjacentElement('beforeend', canvasElement)
       for (const toot of timeline) {
         sectionElment.insertAdjacentHTML('beforeend', `
               <img src="${toot.account.avatar}">
@@ -111,14 +119,6 @@ const corpus = new Corpus()
         // console.log(text)
         doc.addText(text)
       }
-      // console.log(doc.list())
-      // wordfreq.getList(list => {
-      // console.log(list)
-      const canvasElement = document.createElement('canvas')
-      canvasElement.setAttribute('width', window.innerWidth)
-      canvasElement.setAttribute('height', window.innerWidth / 2)
-      const canvasWidth = canvasElement.width
-      sectionElment.insertAdjacentElement('beforeend', canvasElement)
       WordCloud(canvasElement, {
         list: doc.list(),
         shrinkToFit: true,
@@ -130,7 +130,6 @@ const corpus = new Corpus()
         rotationSteps: 2,
         backgroundColor: '#ffe0e0'
       })
-      // })
     } catch (e) {
       console.warn('Ignoring', community.domain, e)
     }

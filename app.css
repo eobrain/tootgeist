@@ -1,3 +1,7 @@
 article section > img {
-    width:100px
+    width:50px
+}
+
+canvas {
+    float:right;
 }
