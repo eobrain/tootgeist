@@ -22,14 +22,19 @@ fetch('https://api.joinmastodon.org/servers')
     const doms = []
     let count = 0
     for (const community of communities) {
+      console.log(community)
       const sizeWidth = 100.0 * community.last_week_users / biggestSize
       const sectionElment = document.createElement('section')
       articleElement.insertAdjacentElement('beforeend', sectionElment)
       sectionElment.insertAdjacentHTML('beforeend',
       `
       <h2>${community.domain}</h2>
+      <figure>
+      <img src="${community.proxied_thumbnail}">
+      </figure>
       <div class="bar" style="width:${sizeWidth}vw"></div>
       <p>${community.last_week_users} users last week</p>
+      <p>${community.description} (${community.category})</p>
       `
       )
       doms.push({ community, sectionElment })
@@ -46,6 +51,9 @@ fetch('https://api.joinmastodon.org/servers')
             return
           }
           const doc = new Doc(corpus)
+          sectionElment.insertAdjacentHTML('beforeend', `
+            <h3>Recent posters</h3>
+          `)
           for (const toot of timeline) {
             sectionElment.insertAdjacentHTML('beforeend', `
               <img src="${toot.account.avatar}">
@@ -62,6 +70,9 @@ fetch('https://api.joinmastodon.org/servers')
     }
     Promise.allSettled(promises).then(() => {
       for (const { doc, sectionElment } of later) {
+        sectionElment.insertAdjacentHTML('beforeend', `
+          <h3>Words in recent posts</h3>
+        `)
         for (const [term, value] of doc.list()) {
           sectionElment.insertAdjacentHTML('beforeend', `
             <span style="font-size:${value * 100}px">${term}</span>

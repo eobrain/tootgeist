@@ -2,6 +2,11 @@ article section > img {
     width:50px
 }
 
+article section > figure > img {
+    width:50%
+}
+
+
 progress {
     width:100%;
 }
@@ -14,4 +19,9 @@ progress {
 article > section > span {
     border:1px solid green;
     border-radius: 0.1em;
+}
+
+section {
+    margin-top: 10em;
+    margin-bottom: 10em;
 }
