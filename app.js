@@ -55,7 +55,7 @@ fetch('https://api.joinmastodon.org/servers')
           `)
           for (const toot of timeline) {
             sectionElment.insertAdjacentHTML('beforeend', `
-              <img src="${toot.account.avatar_static}">
+              <a href="${toot.account.url}"><img src="${toot.account.avatar_static}"></a>
             `
             )
             const text = deTag(toot.content).split(utlPattern).join(' ')
@@ -69,7 +69,7 @@ fetch('https://api.joinmastodon.org/servers')
             const images = toot.media_attachments.filter(a => a.type === 'image').map(a => a.preview_url)
             for (const image of images) {
               sectionElment.insertAdjacentHTML('beforeend', `
-                <img class="media" src="${image}">
+                <a href="${toot.url}"><img class="media" src="${image}"></a>
                 `
               )
             }

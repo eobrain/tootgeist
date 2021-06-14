@@ -1,5 +1,5 @@
-article section > img {
-    height:50px;
+article section > a > img {
+    height:100px;
     width:auto;
 }
 
