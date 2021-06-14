@@ -6,6 +6,38 @@ const utlPattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9(
 
 const deTag = html => new DOMParser().parseFromString(html, 'text/html').body.textContent || ''
 
+const durationS = ms => {
+  if (ms < 100) {
+    return Math.round(ms) + ' milliseconds'
+  }
+  const s = ms / 1000.0
+  if (s < 120) {
+    return Math.round(s) + ' seconds'
+  }
+  const m = s / 60.0
+  if (m < 120) {
+    return Math.round(m) + ' minutes'
+  }
+  const h = m / 60.0
+  if (h < 48) {
+    return Math.round(h) + ' hours'
+  }
+  const d = h / 24
+  if (d < 14) {
+    return Math.round(d) + ' days'
+  }
+  const w = d / 7
+  if (w < 8) {
+    return Math.round(w) + ' weeks'
+  }
+  const y = d / 365.24
+  const mon = y * 12 // approx
+  if (mon < 24) {
+    return Math.round(mon) + ' months'
+  }
+  return Math.round(y) + ' years'
+}
+
 const corpus = new Corpus()
 
 fetch('https://api.joinmastodon.org/servers')
@@ -33,7 +65,6 @@ fetch('https://api.joinmastodon.org/servers')
       <a href="${url}"><img src="${community.proxied_thumbnail}"></a>
       </figure>
       <div class="bar" style="width:${sizeWidth}vw"></div>
-      <p>${community.last_week_users} users last week</p>
       <p>${community.description} (${community.category})</p>
       `
       )
@@ -54,6 +85,8 @@ fetch('https://api.joinmastodon.org/servers')
           sectionElment.insertAdjacentHTML('beforeend', `
             <h3>Recent posters</h3>
           `)
+          let oldestTimeMs = Date.now()
+          let tootCount = 0
           for (const toot of timeline) {
             sectionElment.insertAdjacentHTML('beforeend', `
               <a href="${toot.account.url}"><img src="${toot.account.avatar_static}"></a>
@@ -61,6 +94,8 @@ fetch('https://api.joinmastodon.org/servers')
             )
             const text = deTag(toot.content).split(utlPattern).join(' ')
             doc.addText(text)
+            oldestTimeMs = Date.parse(toot.created_at)
+            ++tootCount
           }
           sectionElment.insertAdjacentHTML('beforeend', `
             <h3>Recent images</h3>
@@ -74,14 +109,18 @@ fetch('https://api.joinmastodon.org/servers')
               )
             }
           }
-          later.push({ doc, sectionElment })
+          const durationMs = Date.now() - oldestTimeMs
+
+          later.push({ doc, sectionElment, tootCount, durationMs, community })
+          progressElement.max = communities.length + later.length
         }).catch(e => {
           progressElement.value = ++count
           console.warn('Ignoring', community.domain, e)
         }))
     }
     Promise.allSettled(promises).then(() => {
-      for (const { doc, sectionElment } of later) {
+      for (const { doc, sectionElment, tootCount, durationMs, community } of later) {
+        progressElement.value = ++count
         sectionElment.insertAdjacentHTML('beforeend', `
           <h3>Words in recent posts</h3>
         `)
@@ -91,6 +130,14 @@ fetch('https://api.joinmastodon.org/servers')
           `
           )
         }
+        if (tootCount > 0 && durationMs > 0) {
+          sectionElment.insertAdjacentHTML('beforeend', `
+          <p>${community.last_week_users} users last week, with
+             ${durationS(durationMs / tootCount)} average time between toots
+             in the last ${durationS(durationMs)}</p>
+          `)
+        }
       }
+      progressElement.remove()
     })
   })
