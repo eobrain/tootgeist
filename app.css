@@ -10,3 +10,8 @@ progress {
     background:red;
     height:2px;
 }
+
+article > section > span {
+    border:1px solid green;
+    border-radius: 0.1em;
+}
