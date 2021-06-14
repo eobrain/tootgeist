@@ -22,7 +22,6 @@ fetch('https://api.joinmastodon.org/servers')
     const doms = []
     let count = 0
     for (const community of communities) {
-      console.log(community)
       const sizeWidth = 100.0 * community.last_week_users / biggestSize
       const sectionElment = document.createElement('section')
       articleElement.insertAdjacentElement('beforeend', sectionElment)
@@ -56,11 +55,24 @@ fetch('https://api.joinmastodon.org/servers')
           `)
           for (const toot of timeline) {
             sectionElment.insertAdjacentHTML('beforeend', `
-              <img src="${toot.account.avatar}">
+              <img src="${toot.account.avatar_static}">
             `
             )
             const text = deTag(toot.content).split(utlPattern).join(' ')
             doc.addText(text)
+          }
+          sectionElment.insertAdjacentHTML('beforeend', `
+            <h3>Recent images</h3>
+          `)
+          for (const toot of timeline) {
+            console.log(toot)
+            const images = toot.media_attachments.filter(a => a.type === 'image').map(a => a.preview_url)
+            for (const image of images) {
+              sectionElment.insertAdjacentHTML('beforeend', `
+                <img class="media" src="${image}">
+                `
+              )
+            }
           }
           later.push({ doc, sectionElment })
         }).catch(e => {

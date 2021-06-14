@@ -1,11 +1,13 @@
 article section > img {
-    width:50px
+    height:50px;
+    width:auto;
 }
 
+.media,
 article section > figure > img {
-    width:50%
+    height:200px;
+    width:auto;   
 }
-
 
 progress {
     width:100%;
