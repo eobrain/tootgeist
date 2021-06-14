@@ -82,8 +82,12 @@ const corpus = new Corpus()
 
   for (const community of communities) {
     try {
-      const apiResponse = await fetch(`https://${community.domain}/api/v1/timelines/public?limit=100`)
+      const apiResponse = await fetch(`https://${community.domain}/api/v1/timelines/public?local=true&limit=100`)
       const timeline = await apiResponse.json()
+      if (timeline.length === 0) {
+        console.warn('No toots from', community.domain)
+        continue
+      }
       const sizeWidth = 100.0 * community.last_week_users / biggestSize
       const sectionElment = document.createElement('section')
       // console.log(community)
@@ -128,7 +132,7 @@ const corpus = new Corpus()
       })
       // })
     } catch (e) {
-      console.warning('Ignoring', community.domain, e)
+      console.warn('Ignoring', community.domain, e)
     }
   }
 })()
