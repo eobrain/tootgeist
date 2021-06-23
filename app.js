@@ -54,10 +54,8 @@ fetch('https://api.joinmastodon.org/servers')
       sectionElment.insertAdjacentHTML('beforeend',
       `
       <h2><a href="${url}">${community.domain}</a></h2>
-      <figure>
-      <img src="${community.proxied_thumbnail}">
-      </figure>
       <p>${community.description} (${community.category})</p>
+      <a href="${url}"><img src="${community.proxied_thumbnail}"></a>
       `
       )
       doms.push({ community, sectionElment })
@@ -73,9 +71,6 @@ fetch('https://api.joinmastodon.org/servers')
             return
           }
           const doc = new Doc(corpus)
-          sectionElment.insertAdjacentHTML('beforeend', `
-            <h3>Recent posters</h3>
-          `)
           let oldestTimeMs = Date.now()
           let tootCount = 0
           for (const toot of timeline) {
@@ -87,15 +82,10 @@ fetch('https://api.joinmastodon.org/servers')
             doc.addText(text)
             oldestTimeMs = Date.parse(toot.created_at)
             ++tootCount
-          }
-          sectionElment.insertAdjacentHTML('beforeend', `
-            <h3>Recent images</h3>
-          `)
-          for (const toot of timeline) {
             const images = toot.media_attachments.filter(a => a.type === 'image').map(a => a.preview_url)
             for (const image of images) {
               sectionElment.insertAdjacentHTML('beforeend', `
-                <a href="${toot.url}"><img class="media" src="${image}"></a>
+                <a href="${toot.url}"><img src="${image}"></a>
                 `
               )
             }
@@ -109,12 +99,10 @@ fetch('https://api.joinmastodon.org/servers')
     }
     Promise.allSettled(promises).then(() => {
       for (const { doc, sectionElment, tootCount, durationMs, community } of later) {
-        sectionElment.insertAdjacentHTML('beforeend', `
-          <h3>Words in recent posts</h3>
-        `)
+        sectionElment.insertAdjacentHTML('beforeend', '<hr>')
         for (const [term, value] of doc.list(WORD_COUNT)) {
           sectionElment.insertAdjacentHTML('beforeend', `
-            <span style="font-size:${value * 10}vw">${term}</span>
+            <span style="font-size:${value * 5}vw">${term}</span>
           `
           )
         }
