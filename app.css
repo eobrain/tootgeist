@@ -22,8 +22,12 @@ progress {
 }
 
 article>section>span {
-    border: 1px solid green;
-    border-radius: 0.1em;
+    vertical-align: middle;
+    background-color: pink;
+    border-radius: 0.2em;
+    padding: 0.1em;
+    margin: 0.1em;
+    line-height: 1.4em;
 }
 
 section {
@@ -37,6 +41,7 @@ section {
     border: solid red 1px;
     padding: 2vmax;
     margin: 2vmax;
+
 }
 
 /* Horizontally scrolling */
