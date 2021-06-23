@@ -46,16 +46,8 @@ fetch('https://api.joinmastodon.org/servers')
   .then(communities => {
     communities.sort((a, b) => b.last_week_users - a.last_week_users)
 
-    const biggestSize = communities[0].last_week_users
-
-    const progressElement = document.createElement('progress')
-    progressElement.max = communities.length
-    articleElement.insertAdjacentElement('beforeend', progressElement)
-
     const doms = []
-    let count = 0
     for (const community of communities) {
-      const sizeWidth = 100.0 * community.last_week_users / biggestSize
       const sectionElment = document.createElement('section')
       articleElement.insertAdjacentElement('beforeend', sectionElment)
       const url = `https://${community.domain}/about`
@@ -63,9 +55,8 @@ fetch('https://api.joinmastodon.org/servers')
       `
       <h2><a href="${url}">${community.domain}</a></h2>
       <figure>
-      <a href="${url}"><img src="${community.proxied_thumbnail}"></a>
+      <img src="${community.proxied_thumbnail}">
       </figure>
-      <div class="bar" style="width:${sizeWidth}vw"></div>
       <p>${community.description} (${community.category})</p>
       `
       )
@@ -77,7 +68,6 @@ fetch('https://api.joinmastodon.org/servers')
       promises.push(fetch(`https://${community.domain}/api/v1/timelines/public?local=true&limit=100`)
         .then(apiResponse => apiResponse.json())
         .then(timeline => {
-          progressElement.value = ++count
           if (timeline.length === 0) {
             console.warn('No toots from', community.domain)
             return
@@ -113,21 +103,18 @@ fetch('https://api.joinmastodon.org/servers')
           const durationMs = Date.now() - oldestTimeMs
 
           later.push({ doc, sectionElment, tootCount, durationMs, community })
-          progressElement.max = communities.length + later.length
         }).catch(e => {
-          progressElement.value = ++count
           console.warn('Ignoring', community.domain, e)
         }))
     }
     Promise.allSettled(promises).then(() => {
       for (const { doc, sectionElment, tootCount, durationMs, community } of later) {
-        progressElement.value = ++count
         sectionElment.insertAdjacentHTML('beforeend', `
           <h3>Words in recent posts</h3>
         `)
         for (const [term, value] of doc.list(WORD_COUNT)) {
           sectionElment.insertAdjacentHTML('beforeend', `
-            <span style="font-size:${value * 100}px">${term}</span>
+            <span style="font-size:${value * 10}vw">${term}</span>
           `
           )
         }
@@ -139,6 +126,5 @@ fetch('https://api.joinmastodon.org/servers')
           `)
         }
       }
-      progressElement.remove()
     })
   })

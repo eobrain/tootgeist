@@ -1,29 +1,44 @@
-article section > a > img {
-    height:100px;
-    width:auto;
+article section>a>img {
+    height: 5vmax;
+    width: auto;
 }
 
-.media,
-article section > figure > a > img {
-    height:200px;
-    width:auto;   
+.media, article section>figure>img {
+    width: 40vw;
+    height: auto;
+}
+.media, article section>figure>a>img {
+    height: 10vmax;
+    width: auto;
 }
 
 progress {
-    width:100%;
+    width: 100%;
 }
 
 .bar {
-    background:red;
-    height:2px;
+    background: red;
+    height: 2px;
 }
 
-article > section > span {
-    border:1px solid green;
+article>section>span {
+    border: 1px solid green;
     border-radius: 0.1em;
 }
 
 section {
-    margin-top: 10em;
-    margin-bottom: 10em;
+    width: 60vw;
+    border: solid red 1px;
+    padding: 5vmax;
+    margin: 5vmax;
+}
+
+/* Horizontally scrolling */
+article {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+article section {
+    flex: 0 0 auto;
 }
