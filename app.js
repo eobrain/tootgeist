@@ -2,7 +2,8 @@ import { Corpus, Doc } from './tfidf.js'
 
 /* global DOMParser, fetch, articleElement */
 
-const utlPattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
+const URL_PATTERN = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
+const WORD_COUNT = 50
 
 const deTag = html => new DOMParser().parseFromString(html, 'text/html').body.textContent || ''
 
@@ -92,7 +93,7 @@ fetch('https://api.joinmastodon.org/servers')
               <a href="${toot.account.url}"><img src="${toot.account.avatar_static}"></a>
             `
             )
-            const text = deTag(toot.content).split(utlPattern).join(' ')
+            const text = deTag(toot.content).split(URL_PATTERN).join(' ')
             doc.addText(text)
             oldestTimeMs = Date.parse(toot.created_at)
             ++tootCount
@@ -124,7 +125,7 @@ fetch('https://api.joinmastodon.org/servers')
         sectionElment.insertAdjacentHTML('beforeend', `
           <h3>Words in recent posts</h3>
         `)
-        for (const [term, value] of doc.list()) {
+        for (const [term, value] of doc.list(WORD_COUNT)) {
           sectionElment.insertAdjacentHTML('beforeend', `
             <span style="font-size:${value * 100}px">${term}</span>
           `

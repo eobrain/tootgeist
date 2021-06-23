@@ -58,12 +58,12 @@ export class Doc extends Terms {
     return this.termFrequency(term) * this.corpus.inverseDocFrequency(term)
   }
 
-  list () {
+  list (length) {
     const unscaled = Object.keys(this.terms).map(term => [term, this.tfIdf(term)]).filter(([_, value]) => value > 0)
     if (unscaled.length === 0) {
       return unscaled
     }
     unscaled.sort((a, b) => b[1] - a[1])
-    return unscaled.slice(0, 20).map(([term, value]) => [term, value / unscaled[0][1]])
+    return unscaled.slice(0, length).map(([term, value]) => [term, value / unscaled[0][1]])
   }
 }
